@@ -27,6 +27,7 @@
 const MODEL_CONFIGS = {
   "gpt-image-2": {
     label: "GPT Image 2",
+    apiUrl: "https://api.laozhang.ai/v1/images/generations",
     apiModel: "gpt-image-2-vip",
     parameters: [
       {
@@ -81,6 +82,73 @@ const MODEL_CONFIGS = {
       if (image?.b64_json) return { kind: "base64", value: image.b64_json };
       if (image?.url) return { kind: "url", value: image.url };
       throw new Error("API 请求成功，但响应中没有 data[0].b64_json 或 data[0].url。");
+    }
+  },
+  "nano-banana-2": {
+    label: "Nano Banana 2",
+    apiUrl: "https://api.laozhang.ai/v1beta/models/gemini-3.1-flash-image:generateContent",
+    parameters: [
+      {
+        name: "aspectRatio",
+        label: "图片比例",
+        type: "select",
+        default: "16:9",
+        options: [
+          { value: "16:9", label: "16:9（横向 PPT）" },
+          { value: "4:3", label: "4:3（横向）" },
+          { value: "1:1", label: "1:1（方形）" },
+          { value: "3:4", label: "3:4（纵向）" },
+          { value: "9:16", label: "9:16（纵向）" }
+        ]
+      },
+      {
+        name: "output_format",
+        label: "输出格式",
+        type: "select",
+        default: "jpeg",
+        options: [
+          { value: "png", label: "PNG" },
+          { value: "jpeg", label: "JPEG" },
+          { value: "webp", label: "WebP" }
+        ]
+      },
+      {
+        name: "imageSize",
+        label: "图片尺寸",
+        type: "select",
+        default: "2K",
+        options: [
+          { value: "1K", label: "1K" },
+          { value: "2K", label: "2K" },
+          { value: "4K", label: "4K" }
+        ]
+      }
+    ],
+    buildPayload(prompt, values) {
+      return {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseModalities: ["IMAGE"],
+          imageConfig: {
+            aspectRatio: values.aspectRatio,
+            // output_format: values.output_format,
+            imageSize: values.imageSize
+          }
+        }
+      };
+    },
+    parseResponse(result) {
+      const parts = result?.candidates?.[0]?.content?.parts || [];
+      const imagePart = parts.find((part) => part.inlineData?.data || part.inline_data?.data);
+      const inlineData = imagePart?.inlineData || imagePart?.inline_data;
+      if (inlineData?.data) {
+        return {
+          kind: "base64",
+          value: inlineData.data,
+          mimeType: inlineData.mimeType || inlineData.mime_type
+        };
+      }
+      throw new Error("API 请求成功，但响应中没有 candidates[0].content.parts[].inlineData.data。");
     }
   }
 };
@@ -170,6 +238,8 @@ function createParameterControl(modelId, definition) {
 function renderModelParameters() {
   const modelId = elements.modelSelector.value;
   const config = MODEL_CONFIGS[modelId];
+  const savedApiUrl = getSetting(modelSettingName(modelId, "api-url"));
+  elements.apiUrl.value = savedApiUrl || config.apiUrl;
   elements.modelParameters.replaceChildren();
   parameterElements = {};
   config.parameters.forEach((definition) => {
@@ -200,7 +270,7 @@ function readModelParameters(config) {
 }
 
 function persistSettings() {
-  setSetting("api-url", elements.apiUrl.value);
+  setSetting(modelSettingName(elements.modelSelector.value, "api-url"), elements.apiUrl.value);
   setSetting("api-key", elements.apiKey.value);
   setSetting("selected-model", elements.modelSelector.value);
   Object.entries(parameterElements).forEach(([name, input]) => {
@@ -209,9 +279,7 @@ function persistSettings() {
 }
 
 function restoreCommonSettings() {
-  const apiUrl = getSetting("api-url");
   const apiKey = getSetting("api-key");
-  if (apiUrl) elements.apiUrl.value = apiUrl;
   if (apiKey) elements.apiKey.value = apiKey;
   elements.apiUrl.addEventListener("change", persistSettings);
   elements.apiKey.addEventListener("change", persistSettings);
@@ -295,7 +363,8 @@ async function generateImage() {
       const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
       if (objectUrl) URL.revokeObjectURL(objectUrl);
       const format = values.output_format || "png";
-      objectUrl = URL.createObjectURL(new Blob([bytes], { type: imageMimeType(format) }));
+      const mimeType = imageData.mimeType || imageMimeType(format);
+      objectUrl = URL.createObjectURL(new Blob([bytes], { type: mimeType }));
       currentImageUrl = objectUrl;
     } else {
       currentImageUrl = imageData.value;
@@ -356,4 +425,8 @@ setPreset("strategy");
 restoreCommonSettings();
 initializeModels();
 updateCount();
+
+
+
+
 
