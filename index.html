@@ -36,28 +36,13 @@
             <input id="api-key" type="password" placeholder="sk-..." autocomplete="off" required>
             <button id="key-toggle" class="inside-button" type="button" aria-label="显示 API Key" title="显示 API Key">显示</button>
           </div>
-          <small>保存在当前站点 Cookie 中，有效期 30 天。</small>
+          <small>保存在本机浏览器的本地存储中。</small>
         </label>
         <label class="field">
           <span>模型</span>
-          <input id="model" type="text" value="gpt-image-2-vip" required>
+          <select id="model-selector" required></select>
         </label>
-        <label class="field">
-          <span>图片尺寸</span>
-          <select id="size">
-            <option value="2048x1152" selected>2048 × 1152 (16:9)</option>
-            <option value="1536x864">1536 × 864 (16:9)</option>
-            <option value="1024x1024">1024 × 1024 (1:1)</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>质量</span>
-          <select id="quality">
-            <option value="high" selected>高</option>
-            <option value="medium">中</option>
-            <option value="low">低</option>
-          </select>
-        </label>
+        <div id="model-parameters" class="model-parameters"></div>
       </div>
 
       <div class="editor-grid">
@@ -101,7 +86,7 @@
       </div>
 
       <div class="actions">
-        <p id="form-hint">API Key 将保存在当前站点 Cookie，并直接从浏览器发送。</p>
+        <p id="form-hint">API Key 仅保存在本机浏览器的本地存储中，并直接发送至所配置的 API。</p>
         <button id="generate" class="primary-button" type="button">
           <span class="button-icon">✦</span><span>生成 PPT 图片</span>
         </button>
@@ -133,6 +118,8 @@
   <script src="app.js"></script>
 </body>
 </html>
+
+
 
 
 

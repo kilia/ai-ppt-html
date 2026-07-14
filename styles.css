@@ -63,3 +63,9 @@ input:focus,select:focus,textarea:focus { border-color:var(--blue); box-shadow:0
 @media (prefers-reduced-motion:reduce) { .spinner { animation-duration:1.8s; } }
 
 
+
+.model-parameters { display:contents; }
+.range-field { display:grid; grid-template-columns:1fr 54px; align-items:center; gap:8px; height:42px; }
+.range-field input[type="range"] { height:auto; padding:0; border:0; box-shadow:none; accent-color:var(--blue); }
+.range-output { color:var(--blue); font-size:12px; font-weight:800; text-align:right; }
+@media (max-width:760px) { .model-parameters { display:contents; } }
