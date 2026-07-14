@@ -165,6 +165,7 @@ const elements = {
   apiKey: $("api-key"), apiUrl: $("api-url"), modelSelector: $("model-selector"),
   modelParameters: $("model-parameters"), preset: $("prompt-preset"), systemPrompt: $("system-prompt"),
   content: $("ppt-content"), count: $("char-count"), generate: $("generate"), download: $("download"),
+  copyImage: $("copy-image"),
   empty: $("empty-state"), loading: $("loading-state"), loadingElapsed: $("loading-elapsed"), image: $("result-image"),
   error: $("error-message"), generatedAt: $("generated-at"), elapsedTime: $("elapsed-time"),
   reuseParameters: $("reuse-parameters"), resultModelParameters: $("result-model-parameters"),
@@ -322,6 +323,7 @@ function setLoading(isLoading) {
     elements.empty.hidden = true;
     elements.image.hidden = true;
     elements.download.disabled = true;
+    elements.copyImage.disabled = true;
     elements.error.hidden = true;
   }
 }
@@ -455,6 +457,7 @@ async function generateImage() {
     elements.image.hidden = false;
     elements.empty.hidden = true;
     elements.download.disabled = false;
+    elements.copyImage.disabled = false;
     const elapsedSeconds = (performance.now() - startedAt) / 1000;
     lastGeneration = { ...requestSnapshot, generatedAt: new Date(), elapsedSeconds };
     renderGenerationSnapshot(lastGeneration);
@@ -466,6 +469,45 @@ async function generateImage() {
     clearInterval(loadingTimer);
     loadingTimer = null;
     setLoading(false);
+  }
+}
+
+async function convertToPng(blob) {
+  if (blob.type === "image/png") return blob;
+  const bitmap = await createImageBitmap(blob);
+  const canvas = document.createElement("canvas");
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+  const context = canvas.getContext("2d");
+  context.drawImage(bitmap, 0, 0);
+  bitmap.close();
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((pngBlob) => pngBlob ? resolve(pngBlob) : reject(new Error("图片格式转换失败。")), "image/png");
+  });
+}
+
+function showCopyToast(event) {
+  const toast = document.createElement("div");
+  toast.className = "copy-toast";
+  toast.textContent = "复制图片到剪贴板成功";
+  toast.style.left = `${Math.min(event.clientX + 12, window.innerWidth - 230)}px`;
+  toast.style.top = `${Math.min(event.clientY + 12, window.innerHeight - 50)}px`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 1650);
+}
+
+async function copyImageToClipboard(event) {
+  try {
+    if (!navigator.clipboard || typeof ClipboardItem === "undefined") {
+      throw new Error("当前浏览器或页面环境不支持图片剪贴板。");
+    }
+    const response = await fetch(currentImageUrl);
+    if (!response.ok) throw new Error("无法读取生成的图片。");
+    const pngBlob = await convertToPng(await response.blob());
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": pngBlob })]);
+    showCopyToast(event);
+  } catch (error) {
+    showError(`复制图片失败：${error.message}`);
   }
 }
 
@@ -518,6 +560,7 @@ elements.systemPrompt.addEventListener("input", () => {
 elements.content.addEventListener("input", updateCount);
 elements.generate.addEventListener("click", generateImage);
 elements.download.addEventListener("click", downloadImage);
+elements.copyImage.addEventListener("click", copyImageToClipboard);
 elements.reuseParameters.addEventListener("click", reuseGenerationParameters);
 
 clearLegacyCookies();
@@ -525,6 +568,7 @@ initializePrompt();
 restoreCommonSettings();
 initializeModels();
 updateCount();
+
 
 
 

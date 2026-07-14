@@ -103,3 +103,5 @@ input:focus,select:focus,textarea:focus { border-color:var(--blue); box-shadow:0
 .loading-elapsed { min-width:90px; margin-top:4px; color:var(--blue); font-variant-numeric:tabular-nums; font-weight:700; text-align:center; }
 .header-icon-button { display:grid; place-items:center; width:38px; height:38px; padding:0; color:#fff; background:transparent; border:1px solid #5d6874; border-radius:5px; font-size:22px; line-height:1; }
 .header-icon-button:hover { color:#8fc2ff; background:#25313d; border-color:#8fc2ff; }
+.copy-toast { position:fixed; z-index:1000; max-width:220px; padding:7px 10px; color:#fff; background:#17202a; border-left:3px solid #4da3ff; border-radius:4px; box-shadow:0 6px 18px rgba(23,32,42,.24); font-size:12px; line-height:1.4; pointer-events:none; animation:copy-toast 1.6s ease forwards; }
+@keyframes copy-toast { 0% { opacity:0; transform:translateY(5px); } 12%,75% { opacity:1; transform:translateY(0); } 100% { opacity:0; transform:translateY(-5px); } }
