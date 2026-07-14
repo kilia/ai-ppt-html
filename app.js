@@ -1,4 +1,4 @@
-const PROMPTS = {
+﻿const PROMPTS = {
   strategy: `你是一位资深企业战略信息设计师、PPT视觉总监和手绘信息图插画师。请根据“页面文字内容”，生成一张可直接作为企业级PPT单页使用的完整视觉稿。
 
 画布严格采用16:9横向比例，画面铺满，不出现PPT软件界面、外框、水印或页码。使用白色或极浅暖白背景，四周保留安全边距。
@@ -31,11 +31,38 @@ const elements = {
   apiKey: $("api-key"), apiUrl: $("api-url"), model: $("model"), size: $("size"), quality: $("quality"),
   preset: $("prompt-preset"), systemPrompt: $("system-prompt"), content: $("ppt-content"), count: $("char-count"),
   generate: $("generate"), download: $("download"), empty: $("empty-state"), loading: $("loading-state"),
-  image: $("result-image"), error: $("error-message")
+  image: $("result-image"), error: $("error-message"), generationTime: $("generation-time")
 };
 
 let currentImageUrl = "";
 let objectUrl = "";
+const COOKIE_DAYS = 30;
+const SAVED_SETTINGS = {
+  "api-url": elements.apiUrl,
+  "api-key": elements.apiKey,
+  model: elements.model,
+  size: elements.size,
+  quality: elements.quality
+};
+
+function setCookie(name, value) {
+  const expires = new Date(Date.now() + COOKIE_DAYS * 864e5).toUTCString();
+  document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Strict`;
+}
+
+function getCookie(name) {
+  const prefix = `${encodeURIComponent(name)}=`;
+  const item = document.cookie.split("; ").find((cookie) => cookie.startsWith(prefix));
+  return item ? decodeURIComponent(item.slice(prefix.length)) : "";
+}
+
+function restoreSettings() {
+  Object.entries(SAVED_SETTINGS).forEach(([name, element]) => {
+    const value = getCookie(name);
+    if (value) element.value = value;
+    element.addEventListener("change", () => setCookie(name, element.value));
+  });
+}
 
 function setPreset(name) {
   if (PROMPTS[name]) elements.systemPrompt.value = PROMPTS[name];
@@ -80,7 +107,10 @@ async function generateImage() {
     return;
   }
 
+  Object.entries(SAVED_SETTINGS).forEach(([name, element]) => setCookie(name, element.value));
   setLoading(true);
+  elements.generationTime.hidden = true;
+  const startedAt = performance.now();
   try {
     const response = await fetch(apiUrl, {
       method: "POST",
@@ -115,6 +145,9 @@ async function generateImage() {
     elements.image.hidden = false;
     elements.empty.hidden = true;
     elements.download.hidden = false;
+    const elapsedSeconds = (performance.now() - startedAt) / 1000;
+    elements.generationTime.textContent = `本次生成耗时：${elapsedSeconds.toFixed(1)} 秒`;
+    elements.generationTime.hidden = false;
   } catch (error) {
     const corsHint = error instanceof TypeError ? "浏览器无法访问该 API。请确认 API 已启用 CORS，并允许 Authorization 与 Content-Type 请求头。" : error.message;
     showError(corsHint);
@@ -157,4 +190,8 @@ elements.generate.addEventListener("click", generateImage);
 elements.download.addEventListener("click", downloadImage);
 
 setPreset("strategy");
+restoreSettings();
 updateCount();
+
+
+

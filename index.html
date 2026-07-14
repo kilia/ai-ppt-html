@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -36,7 +36,7 @@
             <input id="api-key" type="password" placeholder="sk-..." autocomplete="off" required>
             <button id="key-toggle" class="inside-button" type="button" aria-label="显示 API Key" title="显示 API Key">显示</button>
           </div>
-          <small>仅用于本次请求，不会保存到浏览器。</small>
+          <small>保存在当前站点 Cookie 中，有效期 30 天。</small>
         </label>
         <label class="field">
           <span>模型</span>
@@ -101,7 +101,7 @@
       </div>
 
       <div class="actions">
-        <p id="form-hint">API Key 直接从浏览器发送，请仅在可信设备上使用。</p>
+        <p id="form-hint">API Key 将保存在当前站点 Cookie，并直接从浏览器发送。</p>
         <button id="generate" class="primary-button" type="button">
           <span class="button-icon">✦</span><span>生成 PPT 图片</span>
         </button>
@@ -126,9 +126,14 @@
         </div>
         <img id="result-image" alt="AI 生成的 PPT 页面" hidden>
       </div>
+      <p id="generation-time" class="generation-time" hidden></p>
       <div id="error-message" class="error-message" role="alert" hidden></div>
     </section>
   </main>
   <script src="app.js"></script>
 </body>
 </html>
+
+
+
+

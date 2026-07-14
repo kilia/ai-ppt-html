@@ -1,5 +1,6 @@
-:root { color-scheme: light; --ink:#17202a; --muted:#65717f; --line:#d9e0e7; --blue:#1468d4; --blue-dark:#0b4fa7; --blue-pale:#eaf3ff; --paper:#fff; --canvas:#f3f5f7; --gold:#e0a51d; }
+﻿:root { color-scheme: light; --ink:#17202a; --muted:#65717f; --line:#d9e0e7; --blue:#1468d4; --blue-dark:#0b4fa7; --blue-pale:#eaf3ff; --paper:#fff; --canvas:#f3f5f7; --gold:#e0a51d; }
 * { box-sizing: border-box; }
+[hidden] { display:none!important; }
 body { margin:0; min-width:320px; color:var(--ink); background:var(--canvas); font-family:Inter,"Segoe UI","Microsoft YaHei",sans-serif; letter-spacing:0; }
 button,input,select,textarea { font:inherit; letter-spacing:0; }
 button { cursor:pointer; }
@@ -55,7 +56,10 @@ input:focus,select:focus,textarea:focus { border-color:var(--blue); box-shadow:0
 .empty-mark { display:grid; place-items:center; width:76px; height:44px; margin-bottom:6px; color:var(--blue); border:2px solid #8cbcf4; font-size:13px; font-weight:800; }
 .spinner { width:34px; height:34px; margin-bottom:6px; border:3px solid #cbdcf1; border-top-color:var(--blue); border-radius:50%; animation:spin .8s linear infinite; }
 .error-message { margin-top:12px; padding:12px 14px; color:#9b2c2c; background:#fff1f1; border-left:3px solid #cf3f3f; font-size:13px; white-space:pre-wrap; }
+.generation-time { margin:10px 0 0; color:var(--muted); font-size:12px; text-align:right; }
 .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 @keyframes spin { to { transform:rotate(360deg); } }
 @media (max-width:760px) { .app-header { padding:18px 16px; } .header-note { display:none; } main { width:calc(100% - 20px); margin-top:10px; } .workspace,.result-section { padding:16px; } .api-settings:not([hidden]) { grid-template-columns:1fr; } .field-wide { grid-column:auto; } .editor-grid { grid-template-columns:1fr; } .field-content,.prompt-details { grid-column:1; grid-row:auto; } .actions { align-items:stretch; flex-direction:column; } .primary-button { width:100%; } }
 @media (prefers-reduced-motion:reduce) { .spinner { animation-duration:1.8s; } }
+
+
