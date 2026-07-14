@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI PPT 图片生成器</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">AI PPT HTML</p>
+      <h1>PPT 页面图片生成器</h1>
+    </div>
+    <span class="header-note">16:9 · Serverless</span>
+  </header>
+
+  <main>
+    <section class="workspace" aria-labelledby="input-title">
+      <div class="section-heading">
+        <div>
+          <span class="step">01</span>
+          <h2 id="input-title">设置生成内容</h2>
+        </div>
+        <button id="settings-toggle" class="icon-button" type="button" aria-expanded="false" aria-controls="api-settings" title="API 设置">⚙</button>
+      </div>
+
+      <div id="api-settings" class="api-settings" hidden>
+        <label class="field field-wide">
+          <span>API 地址</span>
+          <input id="api-url" type="url" value="https://api.laozhang.ai/v1/images/generations" required>
+        </label>
+        <label class="field">
+          <span>API Key</span>
+          <div class="password-field">
+            <input id="api-key" type="password" placeholder="sk-..." autocomplete="off" required>
+            <button id="key-toggle" class="inside-button" type="button" aria-label="显示 API Key" title="显示 API Key">显示</button>
+          </div>
+          <small>仅用于本次请求，不会保存到浏览器。</small>
+        </label>
+        <label class="field">
+          <span>模型</span>
+          <input id="model" type="text" value="gpt-image-2-vip" required>
+        </label>
+        <label class="field">
+          <span>图片尺寸</span>
+          <select id="size">
+            <option value="2048x1152" selected>2048 × 1152 (16:9)</option>
+            <option value="1536x864">1536 × 864 (16:9)</option>
+            <option value="1024x1024">1024 × 1024 (1:1)</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>质量</span>
+          <select id="quality">
+            <option value="high" selected>高</option>
+            <option value="medium">中</option>
+            <option value="low">低</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="editor-grid">
+        <label class="field">
+          <span>系统提示词</span>
+          <select id="prompt-preset">
+            <option value="strategy" selected>企业战略白板信息图</option>
+            <option value="minimal">现代极简商务</option>
+            <option value="custom">自定义</option>
+          </select>
+        </label>
+        <label class="field field-content">
+          <span>页面文字内容</span>
+          <textarea id="ppt-content" rows="13" placeholder="输入主标题、副标题、内容模块和总结文字……" required>页面主题：AI 驱动研发效能升级
+
+主标题：聚力同行，共创 AI 时代新范式
+副标题：从工具提效到研发流程智能化
+
+模块1：智能研发助手
+- 理解项目上下文
+- 辅助编码、测试与排障
+
+模块2：自动化工作流
+- 串联需求、开发与交付
+- 沉淀可复用最佳实践
+
+模块3：可持续演进
+- 数据驱动效果评估
+- 构建团队 AI 原生能力
+
+底部总结：让 AI 成为每一位研发人员的可靠伙伴</textarea>
+          <span id="char-count" class="char-count">0 字符</span>
+        </label>
+        <details class="prompt-details">
+          <summary>编辑系统提示词</summary>
+          <label class="field">
+            <span class="sr-only">系统提示词正文</span>
+            <textarea id="system-prompt" rows="10"></textarea>
+          </label>
+        </details>
+      </div>
+
+      <div class="actions">
+        <p id="form-hint">API Key 直接从浏览器发送，请仅在可信设备上使用。</p>
+        <button id="generate" class="primary-button" type="button">
+          <span class="button-icon">✦</span><span>生成 PPT 图片</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="result-section" aria-labelledby="result-title">
+      <div class="section-heading result-heading">
+        <div><span class="step">02</span><h2 id="result-title">生成结果</h2></div>
+        <button id="download" class="secondary-button" type="button" hidden>下载图片</button>
+      </div>
+      <div id="result-frame" class="result-frame">
+        <div id="empty-state" class="empty-state">
+          <div class="empty-mark">16:9</div>
+          <strong>图片将在这里显示</strong>
+          <span>完成上方设置后开始生成</span>
+        </div>
+        <div id="loading-state" class="loading-state" hidden>
+          <div class="spinner"></div>
+          <strong>正在生成 PPT 页面</strong>
+          <span>高质量图片通常需要一些时间</span>
+        </div>
+        <img id="result-image" alt="AI 生成的 PPT 页面" hidden>
+      </div>
+      <div id="error-message" class="error-message" role="alert" hidden></div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
