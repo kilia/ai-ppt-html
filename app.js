@@ -289,6 +289,17 @@ function setPreset(name) {
   if (PROMPTS[name]) elements.systemPrompt.value = PROMPTS[name];
 }
 
+function initializePrompt() {
+  const savedPreset = getSetting("prompt-preset");
+  const preset = savedPreset === "custom" || PROMPTS[savedPreset] ? savedPreset : "strategy";
+  elements.preset.value = preset;
+  if (preset === "custom") {
+    elements.systemPrompt.value = getSetting("custom-system-prompt");
+  } else {
+    setPreset(preset);
+  }
+}
+
 function updateCount() {
   elements.count.textContent = `${elements.content.value.length} 字符`;
 }
@@ -414,17 +425,30 @@ elements.keyToggle.addEventListener("click", () => {
   elements.keyToggle.textContent = reveal ? "隐藏" : "显示";
   elements.keyToggle.setAttribute("aria-label", reveal ? "隐藏 API Key" : "显示 API Key");
 });
-elements.preset.addEventListener("change", () => setPreset(elements.preset.value));
-elements.systemPrompt.addEventListener("input", () => { elements.preset.value = "custom"; });
+elements.preset.addEventListener("change", () => {
+  const preset = elements.preset.value;
+  setSetting("prompt-preset", preset);
+  if (preset === "custom") {
+    elements.systemPrompt.value = getSetting("custom-system-prompt");
+  } else {
+    setPreset(preset);
+  }
+});
+elements.systemPrompt.addEventListener("input", () => {
+  elements.preset.value = "custom";
+  setSetting("prompt-preset", "custom");
+  setSetting("custom-system-prompt", elements.systemPrompt.value);
+});
 elements.content.addEventListener("input", updateCount);
 elements.generate.addEventListener("click", generateImage);
 elements.download.addEventListener("click", downloadImage);
 
 clearLegacyCookies();
-setPreset("strategy");
+initializePrompt();
 restoreCommonSettings();
 initializeModels();
 updateCount();
+
 
 
 
