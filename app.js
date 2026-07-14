@@ -36,9 +36,21 @@ const MODEL_CONFIGS = {
         type: "select",
         default: "2048x1152",
         options: [
-          { value: "2048x1152", label: "2048 × 1152 (16:9)" },
-          { value: "1536x864", label: "1536 × 864 (16:9)" },
-          { value: "1024x1024", label: "1024 × 1024 (1:1)" }
+          { value: "1024x576", label: "1K · 16:9（1024 × 576）" },
+          { value: "1024x768", label: "1K · 4:3（1024 × 768）" },
+          { value: "1024x1024", label: "1K · 1:1（1024 × 1024）" },
+          { value: "768x1024", label: "1K · 3:4（768 × 1024）" },
+          { value: "576x1024", label: "1K · 9:16（576 × 1024）" },
+          { value: "2048x1152", label: "2K · 16:9（2048 × 1152）" },
+          { value: "2048x1536", label: "2K · 4:3（2048 × 1536）" },
+          { value: "2048x2048", label: "2K · 1:1（2048 × 2048）" },
+          { value: "1536x2048", label: "2K · 3:4（1536 × 2048）" },
+          { value: "1152x2048", label: "2K · 9:16（1152 × 2048）" },
+          { value: "4096x2304", label: "4K · 16:9（4096 × 2304）" },
+          { value: "4096x3072", label: "4K · 4:3（4096 × 3072）" },
+          { value: "4096x4096", label: "4K · 1:1（4096 × 4096）" },
+          { value: "3072x4096", label: "4K · 3:4（3072 × 4096）" },
+          { value: "2304x4096", label: "4K · 9:16（2304 × 4096）" }
         ]
       },
       {
@@ -568,6 +580,7 @@ initializePrompt();
 restoreCommonSettings();
 initializeModels();
 updateCount();
+
 
 
 
