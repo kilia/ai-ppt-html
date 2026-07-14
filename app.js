@@ -160,13 +160,16 @@ const elements = {
   modelParameters: $("model-parameters"), preset: $("prompt-preset"), systemPrompt: $("system-prompt"),
   content: $("ppt-content"), count: $("char-count"), generate: $("generate"), download: $("download"),
   empty: $("empty-state"), loading: $("loading-state"), image: $("result-image"),
-  error: $("error-message"), generationTime: $("generation-time")
+  error: $("error-message"), generatedAt: $("generated-at"), elapsedTime: $("elapsed-time"),
+  reuseParameters: $("reuse-parameters"), resultModelParameters: $("result-model-parameters"),
+  resultSystemPrompt: $("result-system-prompt"), resultPageContent: $("result-page-content")
 };
 
 const STORAGE_PREFIX = "ai-ppt-html.";
 let currentImageUrl = "";
 let objectUrl = "";
 let parameterElements = {};
+let lastGeneration = null;
 
 function setSetting(name, value) {
   localStorage.setItem(`${STORAGE_PREFIX}${name}`, value);
@@ -331,6 +334,53 @@ function imageMimeType(format) {
   return format === "jpg" ? "image/jpeg" : `image/${format}`;
 }
 
+function formatDateTime(date) {
+  const pad = (value) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+
+function describeModelParameters(snapshot) {
+  const config = MODEL_CONFIGS[snapshot.modelId];
+  const lines = config.parameters.map((definition) => {
+    const value = snapshot.values[definition.name];
+    const option = definition.options?.find((item) => String(item.value) === String(value));
+    return `${definition.label}：${option?.label || value}`;
+  });
+  return [`模型：${config.label}`, ...lines].join("\n");
+}
+
+function renderGenerationSnapshot(snapshot) {
+  elements.generatedAt.textContent = formatDateTime(snapshot.generatedAt);
+  elements.elapsedTime.textContent = `${snapshot.elapsedSeconds.toFixed(1)} 秒`;
+  elements.resultModelParameters.textContent = describeModelParameters(snapshot);
+  elements.resultSystemPrompt.textContent = snapshot.systemPrompt;
+  elements.resultPageContent.textContent = snapshot.content;
+  elements.reuseParameters.disabled = false;
+}
+
+function reuseGenerationParameters() {
+  if (!lastGeneration) return;
+  const snapshot = lastGeneration;
+  elements.modelSelector.value = snapshot.modelId;
+  renderModelParameters();
+  elements.apiUrl.value = snapshot.apiUrl;
+  elements.apiKey.value = snapshot.apiKey;
+  Object.entries(snapshot.values).forEach(([name, value]) => {
+    const input = parameterElements[name];
+    if (!input) return;
+    input.value = String(value);
+    input.dispatchEvent(new Event("input"));
+  });
+  elements.preset.value = snapshot.preset;
+  elements.systemPrompt.value = snapshot.systemPrompt;
+  elements.content.value = snapshot.content;
+  if (snapshot.preset === "custom") setSetting("custom-system-prompt", snapshot.systemPrompt);
+  setSetting("prompt-preset", snapshot.preset);
+  persistSettings();
+  updateCount();
+  document.querySelector(".workspace").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 async function generateImage() {
   const apiKey = elements.apiKey.value.trim();
   const apiUrl = elements.apiUrl.value.trim();
@@ -352,9 +402,13 @@ async function generateImage() {
     return;
   }
 
+  const requestSnapshot = {
+    apiKey, apiUrl, modelId: elements.modelSelector.value,
+    preset: elements.preset.value, systemPrompt, content, values: { ...values }
+  };
   persistSettings();
   setLoading(true);
-  elements.generationTime.hidden = true;
+  elements.reuseParameters.disabled = true;
   const startedAt = performance.now();
   try {
     const payload = config.buildPayload(`${systemPrompt}\n${content}`, values);
@@ -387,11 +441,12 @@ async function generateImage() {
     elements.empty.hidden = true;
     elements.download.hidden = false;
     const elapsedSeconds = (performance.now() - startedAt) / 1000;
-    elements.generationTime.textContent = `本次生成耗时：${elapsedSeconds.toFixed(1)} 秒`;
-    elements.generationTime.hidden = false;
+    lastGeneration = { ...requestSnapshot, generatedAt: new Date(), elapsedSeconds };
+    renderGenerationSnapshot(lastGeneration);
   } catch (error) {
     const corsHint = error instanceof TypeError ? "浏览器无法访问该 API。请确认 API 已启用 CORS，并允许 Authorization 与 Content-Type 请求头。" : error.message;
     showError(corsHint);
+    elements.reuseParameters.disabled = !lastGeneration;
   } finally {
     setLoading(false);
   }
@@ -442,12 +497,15 @@ elements.systemPrompt.addEventListener("input", () => {
 elements.content.addEventListener("input", updateCount);
 elements.generate.addEventListener("click", generateImage);
 elements.download.addEventListener("click", downloadImage);
+elements.reuseParameters.addEventListener("click", reuseGenerationParameters);
 
 clearLegacyCookies();
 initializePrompt();
 restoreCommonSettings();
 initializeModels();
 updateCount();
+
+
 
 
 

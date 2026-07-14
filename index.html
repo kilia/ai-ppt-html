@@ -59,7 +59,7 @@
         </label>
         <label class="field field-content">
           <span>页面文字内容</span>
-          <textarea id="ppt-content" rows="13" placeholder="输入主标题、副标题、内容模块和总结文字……" required>页面主题：AI 驱动研发效能升级
+          <textarea id="ppt-content" rows="6" placeholder="输入主标题、副标题、内容模块和总结文字……" required>页面主题：AI 驱动研发效能升级
 
 主标题：聚力同行，共创 AI 时代新范式
 副标题：从工具提效到研发流程智能化
@@ -101,26 +101,41 @@
         <div><span class="step">02</span><h2 id="result-title">生成结果</h2></div>
         <button id="download" class="secondary-button" type="button" hidden>下载图片</button>
       </div>
-      <div id="result-frame" class="result-frame">
-        <div id="empty-state" class="empty-state">
-          <div class="empty-mark">16:9</div>
-          <strong>图片将在这里显示</strong>
-          <span>完成上方设置后开始生成</span>
+      <div class="result-layout">
+        <div class="result-primary">
+          <div id="result-frame" class="result-frame">
+            <div id="empty-state" class="empty-state">
+              <div class="empty-mark">16:9</div>
+              <strong>图片将在这里显示</strong>
+              <span>完成上方设置后开始生成</span>
+            </div>
+            <div id="loading-state" class="loading-state" hidden>
+              <div class="spinner"></div>
+              <strong>正在生成 PPT 页面</strong>
+              <span>高质量图片通常需要一些时间</span>
+            </div>
+            <img id="result-image" alt="AI 生成的 PPT 页面" hidden>
+          </div>
+          <div class="result-status" aria-label="生成状态">
+            <div class="status-item"><span>生成时间</span><strong id="generated-at">--</strong></div>
+            <div class="status-item"><span>生成耗时</span><strong id="elapsed-time">--</strong></div>
+            <button id="reuse-parameters" class="secondary-button" type="button" disabled>复用参数</button>
+          </div>
         </div>
-        <div id="loading-state" class="loading-state" hidden>
-          <div class="spinner"></div>
-          <strong>正在生成 PPT 页面</strong>
-          <span>高质量图片通常需要一些时间</span>
-        </div>
-        <img id="result-image" alt="AI 生成的 PPT 页面" hidden>
+        <aside class="result-meta" aria-label="本次生成参数">
+          <section class="meta-box"><h3>模型参数</h3><pre id="result-model-parameters">等待生成</pre></section>
+          <section class="meta-box"><h3>系统提示词</h3><pre id="result-system-prompt">等待生成</pre></section>
+          <section class="meta-box"><h3>页面文字内容</h3><pre id="result-page-content">等待生成</pre></section>
+        </aside>
       </div>
-      <p id="generation-time" class="generation-time" hidden></p>
       <div id="error-message" class="error-message" role="alert" hidden></div>
     </section>
   </main>
   <script src="app.js"></script>
 </body>
 </html>
+
+
 
 
 
