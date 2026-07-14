@@ -12,7 +12,7 @@
       <p class="eyebrow">AI PPT HTML</p>
       <h1>PPT 页面图片生成器</h1>
     </div>
-    <span class="header-note">16:9 · Serverless</span>
+    <button id="open-new-tab" class="header-icon-button" type="button" aria-label="在新标签页打开" title="在新标签页打开">↗</button>
   </header>
 
   <main>
@@ -59,7 +59,7 @@
         </label>
         <label class="field field-content">
           <span>页面文字内容</span>
-          <textarea id="ppt-content" rows="6" placeholder="输入主标题、副标题、内容模块和总结文字……" required>页面主题：AI 驱动研发效能升级
+          <textarea id="ppt-content" rows="4" placeholder="输入主标题、副标题、内容模块和总结文字……" required>页面主题：AI 驱动研发效能升级
 
 主标题：聚力同行，共创 AI 时代新范式
 副标题：从工具提效到研发流程智能化
@@ -99,7 +99,10 @@
     <section class="result-section" aria-labelledby="result-title">
       <div class="section-heading result-heading">
         <div><span class="step">02</span><h2 id="result-title">生成结果</h2></div>
-        <button id="download" class="secondary-button" type="button" hidden>下载图片</button>
+        <div class="result-header-actions">
+          <button id="reuse-parameters" class="secondary-button" type="button" disabled>复用参数</button>
+          <button id="download" class="secondary-button" type="button" disabled>下载图片</button>
+        </div>
       </div>
       <div class="result-layout">
         <div class="result-primary">
@@ -113,16 +116,19 @@
               <div class="spinner"></div>
               <strong>正在生成 PPT 页面</strong>
               <span>高质量图片通常需要一些时间</span>
+              <span id="loading-elapsed" class="loading-elapsed">已用时 0 秒</span>
             </div>
             <img id="result-image" alt="AI 生成的 PPT 页面" hidden>
           </div>
-          <div class="result-status" aria-label="生成状态">
-            <div class="status-item"><span>生成时间</span><strong id="generated-at">--</strong></div>
-            <div class="status-item"><span>生成耗时</span><strong id="elapsed-time">--</strong></div>
-            <button id="reuse-parameters" class="secondary-button" type="button" disabled>复用参数</button>
-          </div>
         </div>
         <aside class="result-meta" aria-label="本次生成参数">
+          <section class="meta-box time-meta-box">
+            <h3>生成信息</h3>
+            <div class="meta-status">
+              <span><small>生成时间</small><strong id="generated-at">--</strong></span>
+              <span><small>生成耗时</small><strong id="elapsed-time">--</strong></span>
+            </div>
+          </section>
           <section class="meta-box"><h3>模型参数</h3><pre id="result-model-parameters">等待生成</pre></section>
           <section class="meta-box"><h3>系统提示词</h3><pre id="result-system-prompt">等待生成</pre></section>
           <section class="meta-box"><h3>页面文字内容</h3><pre id="result-page-content">等待生成</pre></section>
@@ -134,6 +140,11 @@
   <script src="app.js"></script>
 </body>
 </html>
+
+
+
+
+
 
 
 

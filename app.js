@@ -153,13 +153,19 @@ const MODEL_CONFIGS = {
   }
 };
 
+MODEL_CONFIGS["nano-banana-pro"] = {
+  ...MODEL_CONFIGS["nano-banana-2"],
+  label: "Nano Banana Pro",
+  apiUrl: "https://api.laozhang.ai/v1beta/models/gemini-3-pro-image-preview:generateContent"
+};
+
 const $ = (id) => document.getElementById(id);
 const elements = {
   settingsToggle: $("settings-toggle"), settings: $("api-settings"), keyToggle: $("key-toggle"),
   apiKey: $("api-key"), apiUrl: $("api-url"), modelSelector: $("model-selector"),
   modelParameters: $("model-parameters"), preset: $("prompt-preset"), systemPrompt: $("system-prompt"),
   content: $("ppt-content"), count: $("char-count"), generate: $("generate"), download: $("download"),
-  empty: $("empty-state"), loading: $("loading-state"), image: $("result-image"),
+  empty: $("empty-state"), loading: $("loading-state"), loadingElapsed: $("loading-elapsed"), image: $("result-image"),
   error: $("error-message"), generatedAt: $("generated-at"), elapsedTime: $("elapsed-time"),
   reuseParameters: $("reuse-parameters"), resultModelParameters: $("result-model-parameters"),
   resultSystemPrompt: $("result-system-prompt"), resultPageContent: $("result-page-content")
@@ -170,6 +176,7 @@ let currentImageUrl = "";
 let objectUrl = "";
 let parameterElements = {};
 let lastGeneration = null;
+let loadingTimer = null;
 
 function setSetting(name, value) {
   localStorage.setItem(`${STORAGE_PREFIX}${name}`, value);
@@ -314,7 +321,7 @@ function setLoading(isLoading) {
   if (isLoading) {
     elements.empty.hidden = true;
     elements.image.hidden = true;
-    elements.download.hidden = true;
+    elements.download.disabled = true;
     elements.error.hidden = true;
   }
 }
@@ -382,6 +389,8 @@ function reuseGenerationParameters() {
 }
 
 async function generateImage() {
+  const firstLine = elements.content.value.split(/\r?\n/, 1)[0].trim();
+  document.title = `${firstLine}《AI PPT 图片生成器》`;
   const apiKey = elements.apiKey.value.trim();
   const apiUrl = elements.apiUrl.value.trim();
   const content = elements.content.value.trim();
@@ -410,6 +419,12 @@ async function generateImage() {
   setLoading(true);
   elements.reuseParameters.disabled = true;
   const startedAt = performance.now();
+  elements.loadingElapsed.textContent = "已用时 0 秒";
+  clearInterval(loadingTimer);
+  loadingTimer = setInterval(() => {
+    const seconds = Math.floor((performance.now() - startedAt) / 1000);
+    elements.loadingElapsed.textContent = `已用时 ${seconds} 秒`;
+  }, 250);
   try {
     const payload = config.buildPayload(`${systemPrompt}\n${content}`, values);
     const response = await fetch(apiUrl, {
@@ -439,7 +454,7 @@ async function generateImage() {
     await elements.image.decode().catch(() => {});
     elements.image.hidden = false;
     elements.empty.hidden = true;
-    elements.download.hidden = false;
+    elements.download.disabled = false;
     const elapsedSeconds = (performance.now() - startedAt) / 1000;
     lastGeneration = { ...requestSnapshot, generatedAt: new Date(), elapsedSeconds };
     renderGenerationSnapshot(lastGeneration);
@@ -448,6 +463,8 @@ async function generateImage() {
     showError(corsHint);
     elements.reuseParameters.disabled = !lastGeneration;
   } finally {
+    clearInterval(loadingTimer);
+    loadingTimer = null;
     setLoading(false);
   }
 }
@@ -468,6 +485,10 @@ async function downloadImage() {
     window.open(currentImageUrl, "_blank", "noopener,noreferrer");
   }
 }
+
+$("open-new-tab").addEventListener("click", () => {
+  window.open(window.location.href, "_blank", "noopener,noreferrer");
+});
 
 elements.settingsToggle.addEventListener("click", () => {
   const expanded = elements.settingsToggle.getAttribute("aria-expanded") === "true";
@@ -504,6 +525,13 @@ initializePrompt();
 restoreCommonSettings();
 initializeModels();
 updateCount();
+
+
+
+
+
+
+
 
 
 
