@@ -46,11 +46,11 @@ const MODEL_CONFIGS = {
           { value: "2048x2048", label: "2K · 1:1（2048 × 2048）" },
           { value: "1536x2048", label: "2K · 3:4（1536 × 2048）" },
           { value: "1152x2048", label: "2K · 9:16（1152 × 2048）" },
-          { value: "4096x2304", label: "4K · 16:9（4096 × 2304）" },
-          { value: "4096x3072", label: "4K · 4:3（4096 × 3072）" },
-          { value: "4096x4096", label: "4K · 1:1（4096 × 4096）" },
-          { value: "3072x4096", label: "4K · 3:4（3072 × 4096）" },
-          { value: "2304x4096", label: "4K · 9:16（2304 × 4096）" }
+          { value: "3840x2160", label: "4K · 16:9（3840 × 2160）" },
+          { value: "3840x2880", label: "4K · 4:3（3840 × 2880）" },
+          { value: "3840x3840", label: "4K · 1:1（3840 × 3840）" },
+          { value: "2880x3840", label: "4K · 3:4（2880 × 3840）" },
+          { value: "2160x3840", label: "4K · 9:16（2160 × 3840）" }
         ]
       },
       {
@@ -250,8 +250,12 @@ function createParameterControl(modelId, definition) {
   input.id = `parameter-${definition.name}`;
   input.name = definition.name;
   input.required = definition.required !== false;
-  const savedValue = getSetting(modelSettingName(modelId, definition.name));
-  input.value = savedValue !== "" ? savedValue : definition.default;
+  const settingName = modelSettingName(modelId, definition.name);
+  const savedValue = getSetting(settingName);
+  const savedOptionExists = definition.type !== "select" || definition.options.some((option) => String(option.value) === savedValue);
+  const initialValue = savedValue !== "" && savedOptionExists ? savedValue : definition.default;
+  input.value = initialValue;
+  if (savedValue !== "" && !savedOptionExists) setSetting(settingName, initialValue);
   input.dispatchEvent(new Event("input"));
   input.addEventListener("change", () => setSetting(modelSettingName(modelId, definition.name), input.value));
   parameterElements[definition.name] = input;
@@ -580,6 +584,8 @@ initializePrompt();
 restoreCommonSettings();
 initializeModels();
 updateCount();
+
+
 
 
 
