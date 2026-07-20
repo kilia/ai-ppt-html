@@ -12,7 +12,7 @@
       <p class="eyebrow">AI PPT HTML</p>
       <h1>PPT 页面图片生成器</h1>
     </div>
-    <button id="open-new-tab" class="header-icon-button" type="button" aria-label="在新标签页打开" title="在新标签页打开">↗</button>
+    <button id="open-new-tab" class="header-icon-button" data-open-new-tab type="button" aria-label="在新标签页打开" title="在新标签页打开">↗</button>
   </header>
 
   <main>
@@ -90,9 +90,12 @@
 
       <div class="actions">
         <p id="form-hint">API Key 仅保存在本机浏览器的本地存储中，并直接发送至所配置的 API。</p>
-        <button id="generate" class="primary-button" type="button">
-          <span class="button-icon">✦</span><span>生成 PPT 图片</span>
-        </button>
+        <div class="generation-actions">
+          <button class="action-icon-button" type="button" data-open-new-tab aria-label="在新标签页打开" title="在新标签页打开">↗</button>
+          <button id="generate" class="primary-button" type="button">
+            <span class="button-icon">✦</span><span>生成 PPT 图片</span>
+          </button>
+        </div>
       </div>
     </section>
 
@@ -141,6 +144,7 @@
   <script src="app.js"></script>
 </body>
 </html>
+
 
 
 

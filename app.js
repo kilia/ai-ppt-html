@@ -168,7 +168,8 @@ const MODEL_CONFIGS = {
 MODEL_CONFIGS["nano-banana-pro"] = {
   ...MODEL_CONFIGS["nano-banana-2"],
   label: "Nano Banana Pro",
-  apiUrl: "https://api.laozhang.ai/v1beta/models/gemini-3-pro-image-preview:generateContent"
+  apiUrl: "https://api.laozhang.ai/v1beta/models/gemini-3-pro-image:generateContent",
+  legacyApiUrls: ["https://api.laozhang.ai/v1beta/models/gemini-3-pro-image-preview:generateContent"]
 };
 
 const $ = (id) => document.getElementById(id);
@@ -265,8 +266,11 @@ function createParameterControl(modelId, definition) {
 function renderModelParameters() {
   const modelId = elements.modelSelector.value;
   const config = MODEL_CONFIGS[modelId];
-  const savedApiUrl = getSetting(modelSettingName(modelId, "api-url"));
-  elements.apiUrl.value = savedApiUrl || config.apiUrl;
+  const apiUrlSettingName = modelSettingName(modelId, "api-url");
+  const savedApiUrl = getSetting(apiUrlSettingName);
+  const isLegacyApiUrl = config.legacyApiUrls?.includes(savedApiUrl);
+  elements.apiUrl.value = savedApiUrl && !isLegacyApiUrl ? savedApiUrl : config.apiUrl;
+  if (isLegacyApiUrl) setSetting(apiUrlSettingName, config.apiUrl);
   elements.modelParameters.replaceChildren();
   parameterElements = {};
   config.parameters.forEach((definition) => {
@@ -544,8 +548,10 @@ async function downloadImage() {
   }
 }
 
-$("open-new-tab").addEventListener("click", () => {
-  window.open(window.location.href, "_blank", "noopener,noreferrer");
+document.querySelectorAll("[data-open-new-tab]").forEach((button) => {
+  button.addEventListener("click", () => {
+    window.open(window.location.href, "_blank", "noopener,noreferrer");
+  });
 });
 
 elements.settingsToggle.addEventListener("click", () => {
@@ -584,6 +590,7 @@ initializePrompt();
 restoreCommonSettings();
 initializeModels();
 updateCount();
+
 
 
 
